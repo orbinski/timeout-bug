@@ -1,6 +1,4 @@
-$contentTypeOneId = [guid]::NewGuid().ToString()
-$contentTypeTwoId = [guid]::NewGuid().ToString()
-
+$contentTypeToCreateId = [guid]::NewGuid().ToString()
 
 function Get-RandomString($length) {
     $chars = "abcdefghijklmnopqrstuvwxyz"
@@ -10,41 +8,26 @@ function Get-RandomString($length) {
 
 $slug = Get-RandomString -length 15
 
-$contentTypeOneName = "${slug}_informationsectionp"
-$contentTypeTwoName = "${slug}_informationsection"
+$contentTypeThatContainsReferenceToAnAlreadyExistingContentTypeName = "${slug}_contenttype_that_contains_ref"
 
-$contentTypeOneJsonString = @"
+$contentTypeJsonString = @"
 {
-    "id":"$contentTypeOneId",
-    "name":"$contentTypeOneName",
+    "id":"$contentTypeToCreateId",
+    "name":"$contentTypeThatContainsReferenceToAnAlreadyExistingContentTypeName",
     "baseType":"Block",
     "editSettings":{
-        "displayName":"informationSectionP",
+        "displayName":"ContentType that references another content type",
         "available":false,
         "sortOrder":10000
     },
     "properties":[
         {
-            "name":"information_section_paragraph_body",
-            "dataType":"PropertyXhtmlString",
+            "name":"Heading",
+            "dataType":"PropertyString",
             "itemType":"",
             "branchSpecific":true,
             "editSettings":{
-                "displayName":"information_section_paragraph_body",
-                "groupName":"Information",
-                "sortOrder":0,
-                "hint":"BasicXhtml",
-                "helpText":null,
-                "visibility":"default"
-            }
-        },
-        {
-            "name":"information_section_paragraph_has_page_link",
-            "dataType":"PropertyBoolean",
-            "itemType":"",
-            "branchSpecific":true,
-            "editSettings":{
-                "displayName":"information_section_paragraph_has_page_link",
+                "displayName":"heading",
                 "groupName":"Information",
                 "sortOrder":1,
                 "hint":"",
@@ -53,85 +36,12 @@ $contentTypeOneJsonString = @"
             }
         },
         {
-            "name":"information_section_paragraph_page_link_label",
-            "dataType":"PropertyString",
-            "itemType":"",
-            "branchSpecific":true,
+            "name":"already_existing_in_db_block_property",
+            "dataType":"PropertyBlock",
+            "itemType":"ButtonBlock",
+            "branchSpecific":false,
             "editSettings":{
-                "displayName":"information_section_paragraph_page_link_label",
-                "groupName":"Information",
-                "sortOrder":2,
-                "hint":"",
-                "helpText":null,
-                "visibility":"default"
-            }
-        },
-        {
-            "name":"information_section_paragraph_page_link_url",
-            "dataType":"PropertyString",
-            "itemType":"",
-            "branchSpecific":true,
-            "editSettings":{
-                "displayName":"information_section_paragraph_page_link_url",
-                "groupName":"Information",
-                "sortOrder":3,
-                "hint":"",
-                "helpText":null,
-                "visibility":"default"
-            }
-        }
-    ]
-}
-"@
-
-
-
-$contentTypeTwoJsonString = @"
-{
-    "id":"$contentTypeTwoId",
-    "name":"$contentTypeTwoName",
-    "baseType":"Block",
-    "editSettings":{
-        "displayName":"informationSection",
-        "available":false,
-        "sortOrder":10000
-    },
-    "properties":[
-        {
-            "name":"information_section_header",
-            "dataType":"PropertyString",
-            "itemType":"",
-            "branchSpecific":true,
-            "editSettings":{
-                "displayName":"information_section_header",
-                "groupName":"Information",
-                "sortOrder":0,
-                "hint":"",
-                "helpText":null,
-                "visibility":"default"
-            }
-        },
-        {
-            "name":"information_section_right_side",
-            "dataType":"PropertyBoolean",
-            "itemType":"",
-            "branchSpecific":true,
-            "editSettings":{
-                "displayName":"information_section_right_side",
-                "groupName":"Information",
-                "sortOrder":1,
-                "hint":"",
-                "helpText":null,
-                "visibility":"default"
-            }
-        },
-        {
-            "name":"information_section_paragraphs",
-            "dataType":"PropertyCollection",
-            "itemType":"$contentTypeOneName",
-            "branchSpecific":true,
-            "editSettings":{
-                "displayName":"information_section_paragraphs",
+                "displayName":"Buttonblock, already existing in alloy db.",
                 "groupName":"Information",
                 "sortOrder":2,
                 "hint":"",
@@ -145,8 +55,10 @@ $contentTypeTwoJsonString = @"
 
 $url = "http://localhost:5000/api/episerver/v3.0/contenttypes"
 
-$responseOne = Invoke-RestMethod -Uri $url -Method Post -Body $contentTypeOneJsonString -ContentType "application/json"
 
-$responseTwo = Invoke-RestMethod -Uri $url -Method Post -Body $contentTypeTwoJsonString -ContentType "application/json"
+# this will add a contenttype with two properties, one string and one block reference. This works EVERY time if you do not add a list- or block reference to another type (for example a alloy ButtonBlock). 
+# But if run with already_existing_in_db_block_property, it will cause errors and timeouts (if you run example node script, it will generate approx 1 rps) 
 
-Write-Output "Two content types created"
+$response = Invoke-RestMethod -Uri $url -Method Post -Body $contentTypeJsonString -ContentType "application/json"
+
+Write-Output "content type created"
