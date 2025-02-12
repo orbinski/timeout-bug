@@ -22,4 +22,4 @@ Build from standard alloy template, with the following changes/additions:
 
 You might need to re-run the add_contenttypes.ps1 script a few times to get the timeouts.
 
-Please note that issue is only happening when you reference another content type (which can already exist in db). Example node script generates a modest load at 1 rps whilst we previously used 50. 
+Please note that issue is only happening when you use lists of or inline blocks of other content types (which can already exist in db). Example node script generates a modest load at 1 rps whilst we previously used 50. 
