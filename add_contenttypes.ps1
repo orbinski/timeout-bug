@@ -8,15 +8,15 @@ function Get-RandomString($length) {
 
 $slug = Get-RandomString -length 15
 
-$contentTypeThatContainsReferenceToAnAlreadyExistingContentTypeName = "${slug}_contenttype_that_contains_ref"
+$contentTypeThatContainsInlineBlockOfAnAlreadyExistingContentTypeName = "${slug}_contenttype_w_inline_block"
 
 $contentTypeJsonString = @"
 {
     "id":"$contentTypeToCreateId",
-    "name":"$contentTypeThatContainsReferenceToAnAlreadyExistingContentTypeName",
+    "name":"$contentTypeThatContainsInlineBlockOfAnAlreadyExistingContentTypeName",
     "baseType":"Block",
     "editSettings":{
-        "displayName":"ContentType that references another content type",
+        "displayName":"ContentType with inline block",
         "available":false,
         "sortOrder":10000
     },
@@ -56,8 +56,9 @@ $contentTypeJsonString = @"
 $url = "http://localhost:5000/api/episerver/v3.0/contenttypes"
 
 
-# this will add a contenttype with two properties, one string and one block reference. This works EVERY time if you do not add a list- or block reference to another type (for example a alloy ButtonBlock). 
-# But if run with already_existing_in_db_block_property, it will cause errors and timeouts (if you run example node script, it will generate approx 1 rps) 
+# this will add a contenttype with two properties, one string and one inline block. This works EVERY time if you do not add a list- or inlineblock of another type (for example an alloy ButtonBlock). 
+# But if run with already_existing_in_db_block_property, it will cause errors and timeouts if at the same time run the example node script, it will generate a load of approx 1 rps.
+# During the hang, your content delivery api wont respond if you run a GET request agains it, for example against:  http://localhost:5000/api/episerver/v3.0/content/8?expand=*
 
 $response = Invoke-RestMethod -Uri $url -Method Post -Body $contentTypeJsonString -ContentType "application/json"
 
